@@ -1,0 +1,19 @@
+{
+  "name": "mapbiomas-degradacao-poc",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "type": "module",
+  "scripts": {
+    "dev": "node --no-warnings --watch src/server.js",
+    "start": "NODE_ENV=production node --no-warnings src/server.js"
+  },
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "@google/earthengine": "^0.1.390",
+    "express": "^4.18.2",
+    "express-async-errors": "^3.1.1",
+    "swagger-ui-express": "^5.0.0"
+  }
+}

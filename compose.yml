@@ -1,0 +1,7 @@
+services:
+  api:
+    container_name: mapbiomas-degradacao-api-poc
+    build: .
+    ports:
+      - 8085:8080
+    restart: unless-stopped

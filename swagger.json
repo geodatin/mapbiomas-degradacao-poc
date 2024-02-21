@@ -1,0 +1,164 @@
+{
+  "openapi": "3.0.0",
+  "info": {
+    "title": "Mapbiomas Degradação API",
+    "version": "1.0.0"
+  },
+  "paths": {
+    "/api/v1/statistics/{bioma}/{ano}": {
+      "get": {
+        "tags": [
+          "Estatísticas"
+        ],
+        "parameters": [
+          {
+            "name": "bioma",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "enum": [
+                "Cerrado",
+                "Caatinga",
+                "Amazônia",
+                "Mata Atlântica",
+                "Pampa",
+                "Pantanal"
+              ],
+              "example": "Cerrado"
+            }
+          },
+          {
+            "name": "ano",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "example": 2022
+            }
+          },
+          {
+            "name": "escala",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "integer",
+              "example": 30,
+              "default": 30
+            }
+          },
+          {
+            "name": "fogoIdade",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "integer"
+            }
+          },
+          {
+            "name": "areaBorda",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "integer",
+              "enum": [
+                30,
+                60,
+                90,
+                120,
+                150,
+                300,
+                600,
+                1000
+              ]
+            }
+          },
+          {
+            "name": "tamanhoFragmento",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "integer",
+              "enum": [
+                3,
+                5,
+                10,
+                25,
+                50,
+                75
+              ]
+            }
+          },
+          {
+            "name": "isolamento",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "enum": [
+                "med: 25, dist: 05, gde: 100",
+                "med: 25, dist: 05, gde: 500",
+                "med: 25, dist: 05, gde: 1000",
+                "med: 25, dist: 10, gde: 100",
+                "med: 25, dist: 10, gde: 500",
+                "med: 25, dist: 10, gde: 1000",
+                "med: 25, dist: 20, gde: 100",
+                "med: 25, dist: 20, gde: 500",
+                "med: 25, dist: 20, gde: 1000",
+                "med: 50, dist: 05, gde: 100",
+                "med: 50, dist: 05, gde: 500",
+                "med: 50, dist: 05, gde: 1000",
+                "med: 50, dist: 10, gde: 100",
+                "med: 50, dist: 10, gde: 500",
+                "med: 50, dist: 10, gde: 1000",
+                "med: 50, dist: 20, gde: 100",
+                "med: 50, dist: 20, gde: 500",
+                "med: 50, dist: 20, gde: 1000",
+                "med: 100, dist: 05, gde: 500",
+                "med: 100, dist: 05, gde: 1000",
+                "med: 100, dist: 10, gde: 500",
+                "med: 100, dist: 10, gde: 1000",
+                "med: 100, dist: 20, gde: 500",
+                "med: 100, dist: 20, gde: 1000"
+              ]
+            }
+          },
+          {
+            "name": "vegetacaoSecundariaIdade",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "integer"
+            }
+          },
+          {
+            "name": "vegetacaoNativa",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "boolean"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Success",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "areaHa": {
+                      "type": "float",
+                      "example": 28.90
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+}
