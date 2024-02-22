@@ -5,6 +5,52 @@
     "version": "1.0.0"
   },
   "paths": {
+    "/api/v1/territories": {
+      "get": {
+        "tags": [
+          "Territórios"
+        ],
+        "responses": {
+          "200": {
+            "description": "Success",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "territories": {
+                      "type": "array",
+                      "items": {
+                        "type": "object",
+                        "properties": {
+                          "tipo": {
+                            "type": "string",
+                            "enum": [
+                              "bioma",
+                              "estado",
+                              "municipio"
+                            ],
+                            "example": "municipio"
+                          },
+                          "nome": {
+                            "type": "string",
+                            "example": "Salvador-BA"
+                          },
+                          "codigo": {
+                            "type": "integer",
+                            "example": 2927408
+                          }
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "/api/v1/statistics/{tipoDeTerritorio}/{nomeDoTerritorio}/{ano}": {
       "get": {
         "tags": [

@@ -18,6 +18,84 @@ app.use(
   }),
 )
 
+app.get('/api/v1/territories', async (req, res) => {
+  const [biomes, cities, states] = await Promise.all([
+    fetchBiomes(),
+    fetchCities(),
+    fetchStates()
+  ])
+
+  const territories = [...biomes, ...cities, ...states]
+
+  return res.json({ territories })
+})
+
+async function fetchBiomes() {
+  const features = ee.FeatureCollection('projects/mapbiomas-agua/assets/territories/biome')
+  const columns = await new Promise((resolve, reject) => {
+    features.reduceColumns(ee.Reducer.toList(2), ['CD_Bioma', 'Bioma']).get('list').evaluate((list, error) => {
+      if(error) {
+        reject(error)
+      } else {
+        resolve(list)
+      }
+    })
+  })
+
+  const biomes = columns.map((props) => {
+    return {
+      tipo: 'bioma',
+      codigo: props[0],
+      nome: props[1]
+    }
+  })
+  return biomes
+}
+
+async function fetchCities() {
+  const features = ee.FeatureCollection('projects/mapbiomas-agua/assets/territories/city')
+  const columns = await new Promise((resolve, reject) => {
+    features.reduceColumns(ee.Reducer.toList(3), ['CODIBGE', 'NM_MUN', 'SIGLA_UF']).get('list').evaluate((list, error) => {
+      if(error) {
+        reject(error)
+      } else {
+        resolve(list)
+      }
+    })
+  })
+
+  const cities = columns.map((props) => {
+    return {
+      tipo: 'municipio',
+      codigo: props[0],
+      nome: `${props[1]}-${props[2]}`
+    }
+  })
+  return cities
+}
+
+async function fetchStates() {
+  const features = ee.FeatureCollection('projects/mapbiomas-agua/assets/territories/state')
+  const columns = await new Promise((resolve, reject) => {
+    features.reduceColumns(ee.Reducer.toList(2), ['CD_UF', 'NM_UF']).get('list').evaluate((list, error) => {
+      if(error) {
+        reject(error)
+      } else {
+        resolve(list)
+      }
+    })
+  })
+
+  const cities = columns.map((props) => {
+    return {
+      tipo: 'estado',
+      codigo: props[0],
+      nome: props[1]
+    }
+  })
+  return cities
+}
+
 app.get('/api/v1/statistics/:territoryType/:territoryName/:year', async (req, res) => {
   let { territoryType, territoryName, year } = req.params
   let { escala, fogoIdade, areaBorda, tamanhoFragmento, isolamento, vegetacaoSecundariaIdade, vegetacaoNativaClasse } = req.query
@@ -146,7 +224,7 @@ function filterTerritory(territoryType, territoryName) {
         .filter(ee.Filter.eq('SIGLA_UF', cityUf))
         .first()
     )
-    return feature.select(['CD_MUN', 'NM_MUN', 'SIGLA_UF'], ['code', 'name', 'uf'])
+    return feature.select(['CODIBGE', 'NM_MUN', 'SIGLA_UF'], ['code', 'name', 'uf'])
   }
 
   if (territoryType === 'estado') {
