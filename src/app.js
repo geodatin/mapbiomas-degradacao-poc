@@ -20,11 +20,12 @@ app.use(
 
 app.get('/api/v1/statistics/:biomeName/:year', async (req, res) => {
   let { biomeName, year } = req.params
-  let { escala, fogoIdade, areaBorda, tamanhoFragmento, isolamento, vegetacaoSecundariaIdade, vegetacaoNativa } = req.query
+  let { escala, fogoIdade, areaBorda, tamanhoFragmento, isolamento, vegetacaoSecundariaIdade, vegetacaoNativaClasse } = req.query
   
   escala = Number(escala) || 30
   fogoIdade = Number(fogoIdade)
   vegetacaoSecundariaIdade = Number(vegetacaoSecundariaIdade)
+  vegetacaoNativaClasse = Number(vegetacaoNativaClasse)
 
   let image = ee.Image(1)
 
@@ -53,8 +54,8 @@ app.get('/api/v1/statistics/:biomeName/:year', async (req, res) => {
     image = image.updateMask(mask)
   }
 
-  if(vegetacaoNativa === 'true') {
-    const mask = nativeVegetationMask(year)
+  if(vegetacaoNativaClasse) {
+    const mask = nativeVegetationMask(year, vegetacaoNativaClasse)
     image = image.updateMask(mask)
   }
 
@@ -118,10 +119,10 @@ function secondaryVegetationAgeMask(year, age) {
   return mask
 }
 
-function nativeVegetationMask(year) {
+function nativeVegetationMask(year, nativeVegetationClass) {
   const nativeVegetationImage = ee.Image('projects/mapbiomas-workspace/DEGRADACAO/COLECAO/BETA/PROCESS/reference_native/reference_v1')
                                   .select(`classification_${year}`)
-  const mask = nativeVegetationImage.gte(1).selfMask()
+  const mask = nativeVegetationImage.eq(nativeVegetationClass).selfMask()
   return mask
 }
 

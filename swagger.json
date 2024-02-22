@@ -132,11 +132,11 @@
             }
           },
           {
-            "name": "vegetacaoNativa",
+            "name": "vegetacaoNativaClasse",
             "in": "query",
             "required": false,
             "schema": {
-              "type": "boolean"
+              "type": "integer"
             }
           }
         ],
