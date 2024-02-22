@@ -15,6 +15,9 @@ app.use(
   swaggerUi.setup(swaggerFile, {
     customCss: '.swagger-ui .topbar { display: none }',
     customSiteTitle: 'Mapbiomas Degradação',
+    swaggerOptions: {
+      syntaxHighlight: false,
+    },
   }),
 )
 
@@ -25,9 +28,9 @@ app.get('/api/v1/territories', async (req, res) => {
     fetchStates()
   ])
 
-  const territories = [...biomes, ...cities, ...states]
+  const territorios = [...biomes, ...cities, ...states]
 
-  return res.json({ territories })
+  return res.json({ territorios })
 })
 
 async function fetchBiomes() {
