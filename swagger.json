@@ -5,27 +5,33 @@
     "version": "1.0.0"
   },
   "paths": {
-    "/api/v1/statistics/{bioma}/{ano}": {
+    "/api/v1/statistics/{tipoDeTerritorio}/{nomeDoTerritorio}/{ano}": {
       "get": {
         "tags": [
           "Estatísticas"
         ],
         "parameters": [
           {
-            "name": "bioma",
+            "name": "tipoDeTerritorio",
             "in": "path",
             "required": true,
             "schema": {
               "type": "string",
               "enum": [
-                "Cerrado",
-                "Caatinga",
-                "Amazônia",
-                "Mata Atlântica",
-                "Pampa",
-                "Pantanal"
+                "bioma",
+                "estado",
+                "municipio"
               ],
-              "example": "Cerrado"
+              "example": "estado"
+            }
+          },
+          {
+            "name": "nomeDoTerritorio",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "example": "Bahia"
             }
           },
           {
