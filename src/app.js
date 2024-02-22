@@ -78,7 +78,7 @@ function fireAgeMask(year, age) {
               .divide(100)
               .toInt()
 
-  const mask = fireAgeImg.eq(age).selfMask()
+  const mask = fireAgeImg.lte(age).selfMask()
   return mask
 }
 
@@ -115,7 +115,7 @@ function secondaryVegetationAgeMask(year, age) {
                                         .divide(100)
                                         .toInt()
 
-  const mask = secondaryVegetationAgeImage.eq(age).selfMask()
+  const mask = secondaryVegetationAgeImage.lte(age).selfMask()
   return mask
 }
 
