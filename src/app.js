@@ -140,17 +140,25 @@ app.get('/api/v1/statistics/:territoryType/:territoryName/:year', async (req, re
     image = image.updateMask(mask)
   }
 
-  const territoryFeature = filterTerritory(territoryType, territoryName)
+  try {
+    const territoryFeature = filterTerritory(territoryType, territoryName)
+
+    if (!territoryFeature) {
+      throw Error('Territory not found')
+    }
+
+    const territoryCode = await fetchTerritoryCode(territoryFeature)
+    const mask = territoryMask(territoryType, territoryCode)
   
-  const territoryCode = await fetchTerritoryCode(territoryFeature)
-  const mask = territoryMask(territoryType, territoryCode)
-
-  image = image.updateMask(mask)
-
-  const geometry = territoryFeature.geometry().bounds()
-  const areaHa = await computeArea(geometry, image, escala)
-
-  return res.json({ areaHa })
+    image = image.updateMask(mask)
+  
+    const geometry = territoryFeature.geometry().bounds()
+    const areaHa = await computeArea(geometry, image, escala)
+  
+    return res.json({ areaHa })
+  } catch (error) {
+    return res.status(400).json({ error: 'Territory not found' })
+  }
 })
 
 function fireAgeMask(year, age) {
@@ -238,8 +246,6 @@ function filterTerritory(territoryType, territoryName) {
     )
     return feature.select(['CD_UF', 'NM_UF', 'SIGLA_UF'], ['code', 'name', 'uf'])
   }
-
-  throw Error('Territory not found.')
 }
 
 async function fetchTerritoryCode(territoryFeature) {
