@@ -54,7 +54,6 @@ async function computeStatistics (req, res) {
   
   const geometry = territoryFeature.geometry()
   const areaHa = await computeAreaWithGrid(geometry, image, escala)
-  // const areaHa = await computeArea(geometry, image, escala)
 
   return res.json({ areaHa })
 }
