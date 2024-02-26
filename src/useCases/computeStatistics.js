@@ -178,13 +178,11 @@ async function computeAreaWithGrid(geometry, mask, scale) {
 
   const gridAreas = await Promise.all(
     gridIds.map(async (id) => {
-      console.log(`Requesting area for id ${id}`)
       const geometry = ee.Feature(
         grid.filter(ee.Filter.eq('id', id)).first()
       ).geometry()
       
       const area = await computeArea(geometry, mask, scale)
-      console.log(`Id ${id} done. Area: ${area}`)
       return area
     })
   )
