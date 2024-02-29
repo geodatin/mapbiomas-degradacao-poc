@@ -25,6 +25,6 @@ app.use(
 
 app.get('/api/v1/territories', listTerritories)
 
-app.get('/api/v1/statistics/:territoryType/:territoryName/:year', computeStatistics)
+app.get('/api/v1/statistics/:territoryType/:territoryName/:year/:method', computeStatistics)
 
 export { app }

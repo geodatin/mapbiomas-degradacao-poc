@@ -52,7 +52,7 @@
         }
       }
     },
-    "/api/v1/statistics/{tipoDeTerritorio}/{nomeDoTerritorio}/{ano}": {
+    "/api/v1/statistics/{tipoDeTerritorio}/{nomeDoTerritorio}/{ano}/{metodo}": {
       "get": {
         "tags": [
           "Estatísticas"
@@ -88,6 +88,20 @@
             "schema": {
               "type": "integer",
               "example": 2022
+            }
+          },
+          {
+            "name": "metodo",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "enum": [
+                "normal",
+                "grid",
+                "gridMap"
+              ],
+              "example": "normal"
             }
           },
           {
