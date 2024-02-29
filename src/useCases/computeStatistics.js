@@ -61,7 +61,7 @@ async function computeStatistics(req, res) {
   let areaHa
   if (method === 'normal') {
     console.time('compute area')
-    areaHa = await computeArea(geometry, image, escala)
+    areaHa = await computeArea(geometry.bounds(), image, escala)
     console.timeEnd('compute area')
   } else if (method === 'grid') {
     areaHa = await computeAreaWithGrid(geometry, image, escala)
