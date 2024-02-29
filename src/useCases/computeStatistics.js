@@ -4,44 +4,54 @@ const GRID_ASSET = 'projects/mapbiomas-agua/assets/gridBrazil'
 
 async function computeStatistics(req, res) {
   let { method, territoryType, territoryName, year } = req.params
-  let { escala, fogoIdade, areaBorda, tamanhoFragmento, isolamento, vegetacaoSecundariaIdade, vegetacaoNativaClasse } = req.query
+  let {
+    escala: scale, 
+    numeroDeGrids: chunksize, 
+    fogoIdade: fireAge,
+    areaBorda: edgeArea, 
+    tamanhoFragmento: patchSize, 
+    isolamento: isolation, 
+    vegetacaoSecundariaIdade: secondaryVegetationAge, 
+    vegetacaoNativaClasse: nativeVegetationClass
+  } = req.query
 
   console.log('Request URL:', req.originalUrl)
 
-  escala = Number(escala) || 30
-  fogoIdade = Number(fogoIdade)
-  vegetacaoSecundariaIdade = Number(vegetacaoSecundariaIdade)
-  vegetacaoNativaClasse = Number(vegetacaoNativaClasse)
+  scale = Number(scale) || 30
+  chunksize = Number(chunksize) || 5
+  fireAge = Number(fireAge)
+  secondaryVegetationAge = Number(secondaryVegetationAge)
+  nativeVegetationClass = Number(nativeVegetationClass)
 
   let image = ee.Image(1)
 
-  if (fogoIdade) {
-    const mask = fireAgeMask(year, fogoIdade)
+  if (fireAge) {
+    const mask = fireAgeMask(year, fireAge)
     image = image.updateMask(mask)
   }
 
-  if (areaBorda) {
-    const mask = edgeAreaMask(year, areaBorda)
+  if (edgeArea) {
+    const mask = edgeAreaMask(year, edgeArea)
     image = image.updateMask(mask)
   }
 
-  if (tamanhoFragmento) {
-    const mask = patchSizeMask(year, tamanhoFragmento)
+  if (patchSize) {
+    const mask = patchSizeMask(year, patchSize)
     image = image.updateMask(mask)
   }
 
-  if (isolamento) {
-    const mask = isolationMask(year, isolamento)
+  if (isolation) {
+    const mask = isolationMask(year, isolation)
     image = image.updateMask(mask)
   }
 
-  if (vegetacaoSecundariaIdade) {
-    const mask = secondaryVegetationAgeMask(year, vegetacaoSecundariaIdade)
+  if (secondaryVegetationAge) {
+    const mask = secondaryVegetationAgeMask(year, secondaryVegetationAge)
     image = image.updateMask(mask)
   }
 
-  if (vegetacaoNativaClasse) {
-    const mask = nativeVegetationMask(year, vegetacaoNativaClasse)
+  if (nativeVegetationClass) {
+    const mask = nativeVegetationMask(year, nativeVegetationClass)
     image = image.updateMask(mask)
   }
 
@@ -61,12 +71,12 @@ async function computeStatistics(req, res) {
   let areaHa
   if (method === 'normal') {
     console.time('compute area')
-    areaHa = await computeArea(geometry.bounds(), image, escala)
+    areaHa = await computeArea(geometry.bounds(), image, scale)
     console.timeEnd('compute area')
   } else if (method === 'grid') {
-    areaHa = await computeAreaWithGrid(geometry, image, escala)
+    areaHa = await computeAreaWithGrid(geometry, image, scale)
   } else if (method === 'gridMap') {
-    areaHa = await computeAreaWithGridMap(geometry, image, escala)
+    areaHa = await computeAreaWithGridMap(geometry, image, scale, chunksize)
   } 
 
   return res.json({ areaHa })
@@ -244,7 +254,7 @@ async function computeArea(geometry, mask, scale) {
   return areaHa
 }
 
-async function computeAreaWithGridMap(geometry, mask, scale) {
+async function computeAreaWithGridMap(geometry, mask, scale, chunksize) {
   const grid = ee.FeatureCollection(GRID_ASSET)
   
   const gridsIntersectGeometry = grid.filterBounds(geometry)
@@ -253,7 +263,7 @@ async function computeAreaWithGridMap(geometry, mask, scale) {
   const gridIds = await fetchGridIds(gridsIntersectGeometry)
   console.timeEnd('fetch grid ids')
 
-  const gridIdChunks = splitIntoChunks(gridIds, 5)
+  const gridIdChunks = splitIntoChunks(gridIds, chunksize)
 
   console.time('compute area')
   const areas = await Promise.all(
