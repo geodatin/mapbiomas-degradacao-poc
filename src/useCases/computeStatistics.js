@@ -1,4 +1,5 @@
 import ee from '@google/earthengine'
+import database from '../../infra/database.js'
 
 const GRID_ASSET = 'projects/mapbiomas-agua/assets/gridBrazil'
 
@@ -74,9 +75,9 @@ async function computeStatistics(req, res) {
     areaHa = await computeArea(geometry.bounds(), image, scale)
     console.timeEnd('compute area')
   } else if (method === 'grid') {
-    areaHa = await computeAreaWithGrid(geometry, image, scale)
+    areaHa = await computeAreaWithGrid(territoryType, territoryCode, image, scale)
   } else if (method === 'gridMap') {
-    areaHa = await computeAreaWithGridMap(geometry, image, scale, chunksize)
+    areaHa = await computeAreaWithGridMap(territoryType, territoryCode, image, scale, chunksize)
   } 
 
   return res.json({ areaHa })
@@ -193,13 +194,12 @@ function territoryMask(territoryType, territoryCode) {
   return mask
 }
 
-async function computeAreaWithGrid(geometry, mask, scale) {
-  const grid = ee.FeatureCollection(GRID_ASSET)
-    .filterBounds(geometry)
+async function computeAreaWithGrid(territoryType, territoryCode, mask, scale) {
+  console.time('find grid ids')
+  const gridIds = await findGridIds(territoryType, territoryCode)
+  console.timeEnd('find grid ids')
 
-  console.time('fetch grid ids')
-  const gridIds = await fetchGridIds(grid)
-  console.timeEnd('fetch grid ids')
+  const grid = ee.FeatureCollection(GRID_ASSET)
 
   console.time('compute area')
   const gridAreas = await Promise.all(
@@ -218,16 +218,12 @@ async function computeAreaWithGrid(geometry, mask, scale) {
   return sumArea
 }
 
-async function fetchGridIds(grid) {
-  const gridIds = await new Promise((resolve, reject) => {
-    grid.aggregate_array('id').evaluate((ids, error) => {
-      if (error) {
-        reject(error)
-      } else {
-        resolve(ids)
-      }
-    })
+async function findGridIds(territoryType, territoryCode) {
+  const result = await database.query({
+    text: "SELECT grid_id FROM territories_grids WHERE territory_type = $1 AND territory_code = $2;",
+    values: [territoryType, territoryCode],
   })
+  const gridIds = result.rows.map((grid) => grid.grid_id)
   return gridIds
 }
 
@@ -254,14 +250,12 @@ async function computeArea(geometry, mask, scale) {
   return areaHa
 }
 
-async function computeAreaWithGridMap(geometry, mask, scale, chunksize) {
+async function computeAreaWithGridMap(territoryType, territoryCode, mask, scale, chunksize) {
   const grid = ee.FeatureCollection(GRID_ASSET)
-  
-  const gridsIntersectGeometry = grid.filterBounds(geometry)
 
-  console.time('fetch grid ids')
-  const gridIds = await fetchGridIds(gridsIntersectGeometry)
-  console.timeEnd('fetch grid ids')
+  console.time('find grid ids')
+  const gridIds = await findGridIds(territoryType, territoryCode)
+  console.timeEnd('find grid ids')
 
   const gridIdChunks = splitIntoChunks(gridIds, chunksize)
 

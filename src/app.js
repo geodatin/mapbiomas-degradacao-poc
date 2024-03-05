@@ -1,3 +1,4 @@
+import 'dotenv/config.js'
 import 'express-async-errors'
 import express from 'express'
 import swaggerUi from 'swagger-ui-express'
