@@ -1,6 +1,6 @@
 import ee from '@google/earthengine'
 
-import { fireAgeMask, edgeAreaMask, patchSizeMask, isolationMask, secondaryVegetationAgeMask, nativeVegetationMask } from '../utils/masks.js'
+import { fireAgeMask, edgeAreaMask, patchSizeMask, isolationMask, secondaryVegetationAgeMask, nativeVegetationMask, landUseLandCoverMask } from '../utils/masks.js'
 import { filterTerritory, fetchTerritoryCode, territoryMask } from '../utils/territories.js'
 import { GRID_ASSET, findGridIds, splitIntoChunks } from '../utils/grids.js'
 
@@ -14,7 +14,8 @@ async function getArea(req, res) {
     tamanhoFragmento: patchSize, 
     isolamento: isolation, 
     vegetacaoSecundariaIdade: secondaryVegetationAge, 
-    vegetacaoNativaClasse: nativeVegetationClass
+    vegetacaoNativaClasse: nativeVegetationClass,
+    usoECoberturaClasse: landUseLandCoverClass
   } = req.query
 
   console.log('Request URL:', req.originalUrl)
@@ -24,6 +25,7 @@ async function getArea(req, res) {
   fireAge = Number(fireAge)
   secondaryVegetationAge = Number(secondaryVegetationAge)
   nativeVegetationClass = Number(nativeVegetationClass)
+  landUseLandCoverClass = Number(landUseLandCoverClass)
 
   let image = ee.Image(1)
 
@@ -54,6 +56,11 @@ async function getArea(req, res) {
 
   if (nativeVegetationClass) {
     const mask = nativeVegetationMask(year, nativeVegetationClass)
+    image = image.updateMask(mask)
+  }
+
+  if (landUseLandCoverClass) {
+    const mask = landUseLandCoverMask(year, landUseLandCoverClass)
     image = image.updateMask(mask)
   }
 

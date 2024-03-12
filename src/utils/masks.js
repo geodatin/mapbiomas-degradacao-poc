@@ -1,5 +1,7 @@
 import ee from '@google/earthengine'
 
+const LAND_USE_LAND_COVER_ASSET = 'projects/mapbiomas-workspace/public/collection8/mapbiomas_collection80_integration_v1'
+
 export function fireAgeMask(year, age) {
   const fireAgeImg = ee.Image('projects/mapbiomas-workspace/DEGRADACAO/COLECAO/BETA/PROCESS/fire/age_v1')
     .select(`age_${year}`)
@@ -51,5 +53,20 @@ export function nativeVegetationMask(year, nativeVegetationClass) {
   const nativeVegetationImage = ee.Image('projects/mapbiomas-workspace/DEGRADACAO/COLECAO/BETA/PROCESS/reference_native/reference_v1')
     .select(`classification_${year}`)
   const mask = nativeVegetationImage.eq(nativeVegetationClass).selfMask()
+  return mask
+}
+
+export function selectLandUseLandCoverImage(year) {
+  const lulcImage = ee.Image(LAND_USE_LAND_COVER_ASSET)
+                      .select(`classification_${year}`)
+                      .rename(['class'])
+  return lulcImage
+}
+
+export function landUseLandCoverMask(year, landUseLandCoverClass) {
+  const lulcImage = ee.Image(LAND_USE_LAND_COVER_ASSET)
+                      .select(`classification_${year}`)
+  
+  const mask = lulcImage.eq(landUseLandCoverClass).selfMask()
   return mask
 }

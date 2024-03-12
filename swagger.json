@@ -216,6 +216,14 @@
             "schema": {
               "type": "integer"
             }
+          },
+          {
+            "name": "usoECoberturaClasse",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "integer"
+            }
           }
         ],
         "responses": {

@@ -1,9 +1,7 @@
 import ee from '@google/earthengine'
-import { fireAgeMask, edgeAreaMask, patchSizeMask, isolationMask, secondaryVegetationAgeMask, nativeVegetationMask } from '../utils/masks.js'
+import { fireAgeMask, edgeAreaMask, patchSizeMask, isolationMask, secondaryVegetationAgeMask, nativeVegetationMask, selectLandUseLandCoverImage } from '../utils/masks.js'
 import { filterTerritory, fetchTerritoryCode, territoryMask } from '../utils/territories.js'
 import { GRID_ASSET, findGridIds, splitIntoChunks } from '../utils/grids.js'
-
-const LAND_USE_LAND_COVER_ASSET = 'projects/mapbiomas-workspace/public/collection8/mapbiomas_collection80_integration_v1'
 
 async function getAreaByClass(req, res) {
   let { method, territoryType, territoryName, year } = req.params
@@ -84,13 +82,6 @@ async function getAreaByClass(req, res) {
   } 
 
   return res.json({ areas })
-}
-
-function selectLandUseLandCoverImage(year) {
-  const lulcImage = ee.Image(LAND_USE_LAND_COVER_ASSET)
-                      .select(`classification_${year}`)
-                      .rename(['class'])
-  return lulcImage
 }
 
 async function computeAreaWithGrid(territoryType, territoryCode, mask, lulcImage, scale) {
