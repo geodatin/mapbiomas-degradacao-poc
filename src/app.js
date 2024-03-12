@@ -5,7 +5,8 @@ import swaggerUi from 'swagger-ui-express'
 import swaggerFile from '../swagger.json' assert { type: "json" };
 
 import { listTerritories } from './useCases/listTerritories.js';
-import { computeStatistics } from './useCases/computeStatistics.js'
+import { getArea } from './useCases/getArea.js'
+import { getAreaByClass } from './useCases/getAreaByClass.js'
 
 const app = express()
 
@@ -26,6 +27,8 @@ app.use(
 
 app.get('/api/v1/territories', listTerritories)
 
-app.get('/api/v1/statistics/:territoryType/:territoryName/:year/:method', computeStatistics)
+app.get('/api/v1/area/:territoryType/:territoryName/:year/:method', getArea)
+
+app.get('/api/v1/area-by-class/:territoryType/:territoryName/:year/:method', getAreaByClass)
 
 export { app }

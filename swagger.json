@@ -52,7 +52,7 @@
         }
       }
     },
-    "/api/v1/statistics/{tipoDeTerritorio}/{nomeDoTerritorio}/{ano}/{metodo}": {
+    "/api/v1/area/{tipoDeTerritorio}/{nomeDoTerritorio}/{ano}/{metodo}": {
       "get": {
         "tags": [
           "Estatísticas"
@@ -229,6 +229,204 @@
                     "areaHa": {
                       "type": "float",
                       "example": 28.90
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/area-by-class/{tipoDeTerritorio}/{nomeDoTerritorio}/{ano}/{metodo}": {
+      "get": {
+        "tags": [
+          "Estatísticas"
+        ],
+        "parameters": [
+          {
+            "name": "tipoDeTerritorio",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "enum": [
+                "bioma",
+                "estado",
+                "municipio"
+              ],
+              "example": "municipio"
+            }
+          },
+          {
+            "name": "nomeDoTerritorio",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "example": "Salvador-BA"
+            }
+          },
+          {
+            "name": "ano",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "example": 2022
+            }
+          },
+          {
+            "name": "metodo",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "enum": [
+                "normal",
+                "grid",
+                "gridMap"
+              ],
+              "example": "normal"
+            }
+          },
+          {
+            "name": "escala",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "integer",
+              "example": 30,
+              "default": 30
+            }
+          },
+          {
+            "name": "numeroDeGrids",
+            "in": "query",
+            "required": false,
+            "description": "Quantidade de grids em um conjunto no método gridMap.",
+            "schema": {
+              "type": "integer",
+              "example": 5,
+              "default": 5
+            }
+          },
+          {
+            "name": "fogoIdade",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "integer"
+            }
+          },
+          {
+            "name": "areaBorda",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "integer",
+              "enum": [
+                30,
+                60,
+                90,
+                120,
+                150,
+                300,
+                600,
+                1000
+              ]
+            }
+          },
+          {
+            "name": "tamanhoFragmento",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "integer",
+              "enum": [
+                3,
+                5,
+                10,
+                25,
+                50,
+                75
+              ]
+            }
+          },
+          {
+            "name": "isolamento",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "enum": [
+                "med: 25, dist: 05, gde: 100",
+                "med: 25, dist: 05, gde: 500",
+                "med: 25, dist: 05, gde: 1000",
+                "med: 25, dist: 10, gde: 100",
+                "med: 25, dist: 10, gde: 500",
+                "med: 25, dist: 10, gde: 1000",
+                "med: 25, dist: 20, gde: 100",
+                "med: 25, dist: 20, gde: 500",
+                "med: 25, dist: 20, gde: 1000",
+                "med: 50, dist: 05, gde: 100",
+                "med: 50, dist: 05, gde: 500",
+                "med: 50, dist: 05, gde: 1000",
+                "med: 50, dist: 10, gde: 100",
+                "med: 50, dist: 10, gde: 500",
+                "med: 50, dist: 10, gde: 1000",
+                "med: 50, dist: 20, gde: 100",
+                "med: 50, dist: 20, gde: 500",
+                "med: 50, dist: 20, gde: 1000",
+                "med: 100, dist: 05, gde: 500",
+                "med: 100, dist: 05, gde: 1000",
+                "med: 100, dist: 10, gde: 500",
+                "med: 100, dist: 10, gde: 1000",
+                "med: 100, dist: 20, gde: 500",
+                "med: 100, dist: 20, gde: 1000"
+              ]
+            }
+          },
+          {
+            "name": "vegetacaoSecundariaIdade",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "integer"
+            }
+          },
+          {
+            "name": "vegetacaoNativaClasse",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "integer"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Success",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "areas": {
+                      "type": "array",
+                      "items": {
+                        "type": "object",
+                        "properties": {
+                          "class": {
+                            "type": "integer",
+                            "example": 3
+                          },
+                          "areaHa": {
+                            "type": "float",
+                            "example": 2234.45
+                          }
+                        }
+                      }
                     }
                   }
                 }

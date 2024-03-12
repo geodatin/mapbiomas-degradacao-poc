@@ -1,9 +1,10 @@
 import ee from '@google/earthengine'
-import database from '../../infra/database.js'
 
-const GRID_ASSET = 'projects/mapbiomas-agua/assets/gridBrazil'
+import { fireAgeMask, edgeAreaMask, patchSizeMask, isolationMask, secondaryVegetationAgeMask, nativeVegetationMask } from '../utils/masks.js'
+import { filterTerritory, fetchTerritoryCode, territoryMask } from '../utils/territories.js'
+import { GRID_ASSET, findGridIds, splitIntoChunks } from '../utils/grids.js'
 
-async function computeStatistics(req, res) {
+async function getArea(req, res) {
   let { method, territoryType, territoryName, year } = req.params
   let {
     escala: scale, 
@@ -67,12 +68,12 @@ async function computeStatistics(req, res) {
 
   image = image.updateMask(mask)
 
-  const geometry = territoryFeature.geometry()
-
+  
   let areaHa
   if (method === 'normal') {
     console.time('compute area')
-    areaHa = await computeArea(geometry.bounds(), image, scale)
+    const geometry = territoryFeature.geometry().bounds()
+    areaHa = await computeArea(geometry, image, scale)
     console.timeEnd('compute area')
   } else if (method === 'grid') {
     areaHa = await computeAreaWithGrid(territoryType, territoryCode, image, scale)
@@ -81,117 +82,6 @@ async function computeStatistics(req, res) {
   } 
 
   return res.json({ areaHa })
-}
-
-function fireAgeMask(year, age) {
-  const fireAgeImg = ee.Image('projects/mapbiomas-workspace/DEGRADACAO/COLECAO/BETA/PROCESS/fire/age_v1')
-    .select(`age_${year}`)
-    .divide(100)
-    .toInt()
-
-  const mask = fireAgeImg.lte(age).selfMask()
-  return mask
-}
-
-function edgeAreaMask(year, edgeArea) {
-  const edgeAreaImg = ee.Image(`projects/mapbiomas-workspace/DEGRADACAO/COLECAO/BETA/PROCESS/edge_area/edge_${edgeArea}m_v2`)
-    .select(`edge_${edgeArea}m_${year}`)
-  const mask = edgeAreaImg
-  return mask
-}
-
-function patchSizeMask(year, patchSize) {
-  const patchSizeImage = ee.Image(`projects/mapbiomas-workspace/DEGRADACAO/COLECAO/BETA/PROCESS/patch_size/size_${patchSize}ha_v3`)
-    .select(`size_${patchSize}ha_${year}`)
-  const mask = patchSizeImage.gte(1).selfMask()
-  return mask
-}
-
-function isolationMask(year, isolation) {
-  const [med, dist, gde] = isolation.split(',')
-  const [, medValue] = med.split(':')
-  const [, distValue] = dist.split(':')
-  const [, gdeValue] = gde.split(':')
-
-  const isolationImage = ee.Image(`projects/mapbiomas-workspace/DEGRADACAO/ISOLATION/nat_uso_frag${medValue.trim()}__dist${distValue.trim()}k__${gdeValue.trim()}_v6_85_22`)
-    .select(`nat_${year}`)
-
-  const mask = isolationImage.gte(1).selfMask()
-  return mask
-}
-
-function secondaryVegetationAgeMask(year, age) {
-  const secondaryVegetationAgeImage = ee.Image('projects/mapbiomas-workspace/DEGRADACAO/COLECAO/BETA/PROCESS/secondary_vegetation/secondary_vegetation_age_v1')
-    .select(`age_${year}`)
-    .divide(100)
-    .toInt()
-
-  const mask = secondaryVegetationAgeImage.lte(age).selfMask()
-  return mask
-}
-
-function nativeVegetationMask(year, nativeVegetationClass) {
-  const nativeVegetationImage = ee.Image('projects/mapbiomas-workspace/DEGRADACAO/COLECAO/BETA/PROCESS/reference_native/reference_v1')
-    .select(`classification_${year}`)
-  const mask = nativeVegetationImage.eq(nativeVegetationClass).selfMask()
-  return mask
-}
-
-function filterTerritory(territoryType, territoryName) {
-  if (territoryType === 'bioma') {
-    const feature = ee.Feature(
-      ee.FeatureCollection('projects/mapbiomas-agua/assets/territories/biome')
-        .filter(ee.Filter.eq('Bioma', territoryName))
-        .first()
-    )
-    return feature.select(['CD_Bioma', 'Bioma'], ['code', 'name'])
-  }
-
-  if (territoryType === 'municipio') {
-    const split = territoryName.split('-')
-    const cityName = split[0].trim()
-    const cityUf = split[1].trim()
-    const feature = ee.Feature(
-      ee.FeatureCollection('projects/mapbiomas-agua/assets/territories/city')
-        .filter(ee.Filter.eq('NM_MUN', cityName))
-        .filter(ee.Filter.eq('SIGLA_UF', cityUf))
-        .first()
-    )
-    return feature.select(['CODIBGE', 'NM_MUN', 'SIGLA_UF'], ['code', 'name', 'uf'])
-  }
-
-  if (territoryType === 'estado') {
-    const feature = ee.Feature(
-      ee.FeatureCollection('projects/mapbiomas-agua/assets/territories/state')
-        .filter(ee.Filter.eq('NM_UF', territoryName))
-        .first()
-    )
-    return feature.select(['CD_UF', 'NM_UF', 'SIGLA_UF'], ['code', 'name', 'uf'])
-  }
-}
-
-async function fetchTerritoryCode(territoryFeature) {
-  return new Promise((resolve, reject) => {
-    territoryFeature.get('code').evaluate((code, error) => {
-      if (error) {
-        reject(error)
-      } else {
-        resolve(code)
-      }
-    })
-  })
-}
-
-function territoryMask(territoryType, territoryCode) {
-  const assetId = {
-    'bioma': 'projects/mapbiomas-agua/assets/territories/images/biome',
-    'municipio': 'projects/mapbiomas-agua/assets/territories/images/city',
-    'estado': 'projects/mapbiomas-agua/assets/territories/images/state'
-  }
-  const mask = ee.Image(assetId[territoryType])
-    .eq(territoryCode)
-    .selfMask()
-  return mask
 }
 
 async function computeAreaWithGrid(territoryType, territoryCode, mask, scale) {
@@ -216,15 +106,6 @@ async function computeAreaWithGrid(territoryType, territoryCode, mask, scale) {
   console.timeEnd('compute area')
 
   return sumArea
-}
-
-async function findGridIds(territoryType, territoryCode) {
-  const result = await database.query({
-    text: "SELECT grid_id FROM territories_grids WHERE territory_type = $1 AND territory_code = $2;",
-    values: [territoryType, territoryCode],
-  })
-  const gridIds = result.rows.map((grid) => grid.grid_id)
-  return gridIds
 }
 
 async function computeArea(geometry, mask, scale) {
@@ -301,14 +182,4 @@ function computeAreaMap(collection, mask, scale) {
   })
 }
 
-function splitIntoChunks(array, chunksize) {
-  const arrays = []
-
-  for (let i = 0; i < array.length; i += chunksize) {
-    arrays.push(array.slice(i, i + chunksize))
-  }
-
-  return arrays
-}
-
-export { computeStatistics }
+export { getArea }
