@@ -52,39 +52,6 @@
         }
       }
     },
-    "/api/v1/biomes": {
-      "get": {
-        "tags": [
-          "Territórios"
-        ],
-        "description": "Lista os biomas.",
-        "responses": {
-          "200": {
-            "description": "Success",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "type": "array",
-                  "items": {
-                    "type": "object",
-                    "properties": {
-                      "code": {
-                        "type": "integer",
-                        "example": 1
-                      },
-                      "name": {
-                        "type": "string",
-                        "example": "Cerrado"
-                      }
-                    }
-                  }
-                }
-              }
-            }
-          }
-        }
-      }
-    },
     "/api/v1/area/{tipoDeTerritorio}/{nomeDoTerritorio}/{ano}/{metodo}": {
       "get": {
         "tags": [
@@ -467,6 +434,116 @@
                             "example": 2234.45
                           }
                         }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/biomes": {
+      "get": {
+        "tags": [
+          "Teste de integração dos rasters"
+        ],
+        "description": "Lista os biomas.",
+        "responses": {
+          "200": {
+            "description": "Success",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "type": "object",
+                    "properties": {
+                      "code": {
+                        "type": "integer",
+                        "example": 3
+                      },
+                      "name": {
+                        "type": "string",
+                        "example": "Cerrado"
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/raster": {
+      "get": {
+        "tags": [
+          "Teste de integração dos rasters"
+        ],
+        "description": "Retorna a url do raster solicitado.",
+        "parameters": [
+          {
+            "name": "assetId",
+            "description": "Id do asset",
+            "in": "query",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "example": "projects/mapbiomas-workspace/public/collection8/mapbiomas_collection80_integration_v1"
+            }
+          },
+          {
+            "name": "pixelValues",
+            "description": "Valores de pixel que devem ser exibidos no mapa",
+            "in": "query",
+            "required": true,
+            "schema": {
+              "type": "array",
+              "example": [
+                3,
+                33
+              ]
+            }
+          },
+          {
+            "name": "colors",
+            "description": "Cor de cada classe que será exibida. Deve conter o mesmo número de itens do parâmetro 'pixelValues'.",
+            "in": "query",
+            "required": true,
+            "schema": {
+              "type": "array",
+              "example": [
+                "#1f8d49",
+                "#2532e4"
+              ]
+            }
+          },
+          {
+            "name": "biomeCode",
+            "description": "Código do bioma",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "integer",
+              "example": 1
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Success",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "type": "object",
+                    "properties": {
+                      "url": {
+                        "type": "string",
+                        "example": "https://earthengine.googleapis.com/v1/projects/earthengine-legacy/maps/4a9e8d271d71a53da7d5d556e0379e19-9c3359704a85324c9dfcd3e6cd42e4a9/tiles/{z}/{x}/{y}"
                       }
                     }
                   }

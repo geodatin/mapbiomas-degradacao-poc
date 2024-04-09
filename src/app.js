@@ -8,6 +8,7 @@ import { listTerritories } from './useCases/listTerritories.js';
 import { getArea } from './useCases/getArea.js'
 import { getAreaByClass } from './useCases/getAreaByClass.js'
 import { listBiomes } from './useCases/listBiomes.js'
+import { getRasterUrl } from './useCases/getRasterUrl.js';
 
 const app = express()
 
@@ -29,6 +30,8 @@ app.use(
 app.get('/api/v1/territories', listTerritories)
 
 app.get('/api/v1/biomes', listBiomes)
+
+app.get('/api/v1/raster', getRasterUrl)
 
 app.get('/api/v1/area/:territoryType/:territoryName/:year/:method', getArea)
 
