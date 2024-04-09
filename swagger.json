@@ -52,6 +52,39 @@
         }
       }
     },
+    "/api/v1/biomes": {
+      "get": {
+        "tags": [
+          "Territórios"
+        ],
+        "description": "Lista os biomas.",
+        "responses": {
+          "200": {
+            "description": "Success",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "type": "object",
+                    "properties": {
+                      "code": {
+                        "type": "integer",
+                        "example": 1
+                      },
+                      "name": {
+                        "type": "string",
+                        "example": "Cerrado"
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "/api/v1/area/{tipoDeTerritorio}/{nomeDoTerritorio}/{ano}/{metodo}": {
       "get": {
         "tags": [

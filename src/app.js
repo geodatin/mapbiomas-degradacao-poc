@@ -7,6 +7,7 @@ import swaggerFile from '../swagger.json' assert { type: "json" };
 import { listTerritories } from './useCases/listTerritories.js';
 import { getArea } from './useCases/getArea.js'
 import { getAreaByClass } from './useCases/getAreaByClass.js'
+import { listBiomes } from './useCases/listBiomes.js'
 
 const app = express()
 
@@ -26,6 +27,8 @@ app.use(
 )
 
 app.get('/api/v1/territories', listTerritories)
+
+app.get('/api/v1/biomes', listBiomes)
 
 app.get('/api/v1/area/:territoryType/:territoryName/:year/:method', getArea)
 
