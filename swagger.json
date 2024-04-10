@@ -537,14 +537,11 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "type": "array",
-                  "items": {
-                    "type": "object",
-                    "properties": {
-                      "url": {
-                        "type": "string",
-                        "example": "https://earthengine.googleapis.com/v1/projects/earthengine-legacy/maps/4a9e8d271d71a53da7d5d556e0379e19-9c3359704a85324c9dfcd3e6cd42e4a9/tiles/{z}/{x}/{y}"
-                      }
+                  "type": "object",
+                  "properties": {
+                    "url": {
+                      "type": "string",
+                      "example": "https://earthengine.googleapis.com/v1/projects/earthengine-legacy/maps/4a9e8d271d71a53da7d5d556e0379e19-9c3359704a85324c9dfcd3e6cd42e4a9/tiles/{z}/{x}/{y}"
                     }
                   }
                 }
