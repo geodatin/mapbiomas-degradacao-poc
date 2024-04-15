@@ -1,5 +1,6 @@
 import 'dotenv/config.js'
 import 'express-async-errors'
+import cors from 'cors'
 import express from 'express'
 import swaggerUi from 'swagger-ui-express'
 import swaggerFile from '../swagger.json' assert { type: "json" };
@@ -12,6 +13,7 @@ import { getRasterUrl } from './useCases/getRasterUrl.js';
 
 const app = express()
 
+app.use(cors())
 app.use(express.json())
 app.use(express.urlencoded({ extended: true }))
 

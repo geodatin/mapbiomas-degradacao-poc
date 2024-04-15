@@ -83,8 +83,6 @@ function generateVisParams(pixelValues, colors) {
     return obj
   }, {})
 
-  console.log(valueToColor)
-
   const palette = []
   for(let i = minValue; i <= maxValue; i++) {
     const color = valueToColor[i]
