@@ -8,8 +8,8 @@ import swaggerFile from '../swagger.json' assert { type: "json" };
 import { listTerritories } from './useCases/listTerritories.js';
 import { getArea } from './useCases/getArea.js'
 import { getAreaByClass } from './useCases/getAreaByClass.js'
-import { listBiomes } from './useCases/listBiomes.js'
 import { getRasterUrl } from './useCases/getRasterUrl.js';
+import { getTimeSeries } from './useCases/getTimeSeries.js';
 
 const app = express()
 
@@ -31,12 +31,12 @@ app.use(
 
 app.get('/api/v1/territories', listTerritories)
 
-app.get('/api/v1/biomes', listBiomes)
-
 app.get('/api/v1/raster', getRasterUrl)
 
-app.get('/api/v1/area/:territoryType/:territoryName/:year/:method', getArea)
+app.get('/api/v1/area/:territoryId/:year', getArea)
 
-app.get('/api/v1/area-by-class/:territoryType/:territoryName/:year/:method', getAreaByClass)
+app.get('/api/v1/area-by-class/:territoryId/:year', getAreaByClass)
+
+app.get('/api/v1/time-series/:territoryId', getTimeSeries)
 
 export { app }

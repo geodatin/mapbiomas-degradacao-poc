@@ -24,22 +24,22 @@
                       "items": {
                         "type": "object",
                         "properties": {
-                          "tipo": {
+                          "id": {
+                            "type": "integer",
+                            "example": 1
+                          },
+                          "category": {
                             "type": "string",
                             "enum": [
-                              "bioma",
-                              "estado",
-                              "municipio"
+                              "biome",
+                              "state",
+                              "country"
                             ],
-                            "example": "municipio"
+                            "example": "country"
                           },
-                          "nome": {
+                          "name": {
                             "type": "string",
-                            "example": "Salvador-BA"
-                          },
-                          "codigo": {
-                            "type": "integer",
-                            "example": 2927408
+                            "example": "Brasil"
                           }
                         }
                       }
@@ -52,37 +52,23 @@
         }
       }
     },
-    "/api/v1/area/{tipoDeTerritorio}/{nomeDoTerritorio}/{ano}/{metodo}": {
+    "/api/v1/area/{territoryId}/{year}": {
       "get": {
         "tags": [
           "Estatísticas"
         ],
         "parameters": [
           {
-            "name": "tipoDeTerritorio",
+            "name": "territoryId",
             "in": "path",
             "required": true,
             "schema": {
-              "type": "string",
-              "enum": [
-                "bioma",
-                "estado",
-                "municipio"
-              ],
-              "example": "municipio"
+              "type": "integer",
+              "example": 1
             }
           },
           {
-            "name": "nomeDoTerritorio",
-            "in": "path",
-            "required": true,
-            "schema": {
-              "type": "string",
-              "example": "Salvador-BA"
-            }
-          },
-          {
-            "name": "ano",
+            "name": "year",
             "in": "path",
             "required": true,
             "schema": {
@@ -91,42 +77,7 @@
             }
           },
           {
-            "name": "metodo",
-            "in": "path",
-            "required": true,
-            "schema": {
-              "type": "string",
-              "enum": [
-                "normal",
-                "grid",
-                "gridMap"
-              ],
-              "example": "normal"
-            }
-          },
-          {
-            "name": "escala",
-            "in": "query",
-            "required": false,
-            "schema": {
-              "type": "integer",
-              "example": 30,
-              "default": 30
-            }
-          },
-          {
-            "name": "numeroDeGrids",
-            "in": "query",
-            "required": false,
-            "description": "Quantidade de grids em um conjunto no método gridMap.",
-            "schema": {
-              "type": "integer",
-              "example": 5,
-              "default": 5
-            }
-          },
-          {
-            "name": "fogoIdade",
+            "name": "fireAge",
             "in": "query",
             "required": false,
             "schema": {
@@ -134,7 +85,7 @@
             }
           },
           {
-            "name": "areaBorda",
+            "name": "edgeArea",
             "in": "query",
             "required": false,
             "schema": {
@@ -152,7 +103,7 @@
             }
           },
           {
-            "name": "tamanhoFragmento",
+            "name": "patchSize",
             "in": "query",
             "required": false,
             "schema": {
@@ -168,7 +119,7 @@
             }
           },
           {
-            "name": "isolamento",
+            "name": "isolation",
             "in": "query",
             "required": false,
             "schema": {
@@ -202,7 +153,7 @@
             }
           },
           {
-            "name": "vegetacaoSecundariaIdade",
+            "name": "secondaryVegetationAge",
             "in": "query",
             "required": false,
             "schema": {
@@ -210,7 +161,7 @@
             }
           },
           {
-            "name": "vegetacaoNativaClasse",
+            "name": "nativeVegetationClass",
             "in": "query",
             "required": false,
             "schema": {
@@ -218,7 +169,7 @@
             }
           },
           {
-            "name": "usoECoberturaClasse",
+            "name": "landUseLandCoverClass",
             "in": "query",
             "required": false,
             "schema": {
@@ -246,37 +197,23 @@
         }
       }
     },
-    "/api/v1/area-by-class/{tipoDeTerritorio}/{nomeDoTerritorio}/{ano}/{metodo}": {
+    "/api/v1/area-by-class/{territoryId}/{year}": {
       "get": {
         "tags": [
           "Estatísticas"
         ],
         "parameters": [
           {
-            "name": "tipoDeTerritorio",
+            "name": "territoryId",
             "in": "path",
             "required": true,
             "schema": {
-              "type": "string",
-              "enum": [
-                "bioma",
-                "estado",
-                "municipio"
-              ],
-              "example": "municipio"
+              "type": "integer",
+              "example": 1
             }
           },
           {
-            "name": "nomeDoTerritorio",
-            "in": "path",
-            "required": true,
-            "schema": {
-              "type": "string",
-              "example": "Salvador-BA"
-            }
-          },
-          {
-            "name": "ano",
+            "name": "year",
             "in": "path",
             "required": true,
             "schema": {
@@ -285,42 +222,7 @@
             }
           },
           {
-            "name": "metodo",
-            "in": "path",
-            "required": true,
-            "schema": {
-              "type": "string",
-              "enum": [
-                "normal",
-                "grid",
-                "gridMap"
-              ],
-              "example": "normal"
-            }
-          },
-          {
-            "name": "escala",
-            "in": "query",
-            "required": false,
-            "schema": {
-              "type": "integer",
-              "example": 30,
-              "default": 30
-            }
-          },
-          {
-            "name": "numeroDeGrids",
-            "in": "query",
-            "required": false,
-            "description": "Quantidade de grids em um conjunto no método gridMap.",
-            "schema": {
-              "type": "integer",
-              "example": 5,
-              "default": 5
-            }
-          },
-          {
-            "name": "fogoIdade",
+            "name": "fireAge",
             "in": "query",
             "required": false,
             "schema": {
@@ -328,7 +230,7 @@
             }
           },
           {
-            "name": "areaBorda",
+            "name": "edgeArea",
             "in": "query",
             "required": false,
             "schema": {
@@ -346,7 +248,7 @@
             }
           },
           {
-            "name": "tamanhoFragmento",
+            "name": "patchSize",
             "in": "query",
             "required": false,
             "schema": {
@@ -362,7 +264,7 @@
             }
           },
           {
-            "name": "isolamento",
+            "name": "isolation",
             "in": "query",
             "required": false,
             "schema": {
@@ -396,7 +298,7 @@
             }
           },
           {
-            "name": "vegetacaoSecundariaIdade",
+            "name": "secondaryVegetationAge",
             "in": "query",
             "required": false,
             "schema": {
@@ -404,7 +306,7 @@
             }
           },
           {
-            "name": "vegetacaoNativaClasse",
+            "name": "nativeVegetationClass",
             "in": "query",
             "required": false,
             "schema": {
@@ -444,29 +346,136 @@
         }
       }
     },
-    "/api/v1/biomes": {
+    "/api/v1/time-series/{territoryId}": {
       "get": {
         "tags": [
-          "Teste de integração dos rasters"
+          "Estatísticas"
         ],
-        "description": "Lista os biomas.",
+        "parameters": [
+          {
+            "name": "territoryId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "example": 1
+            }
+          },
+          {
+            "name": "fireAge",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "integer"
+            }
+          },
+          {
+            "name": "edgeArea",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "integer",
+              "enum": [
+                30,
+                60,
+                90,
+                120,
+                150,
+                300,
+                600,
+                1000
+              ]
+            }
+          },
+          {
+            "name": "patchSize",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "integer",
+              "enum": [
+                3,
+                5,
+                10,
+                25,
+                50,
+                75
+              ]
+            }
+          },
+          {
+            "name": "isolation",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "enum": [
+                "med: 25, dist: 05, gde: 100",
+                "med: 25, dist: 05, gde: 500",
+                "med: 25, dist: 05, gde: 1000",
+                "med: 25, dist: 10, gde: 100",
+                "med: 25, dist: 10, gde: 500",
+                "med: 25, dist: 10, gde: 1000",
+                "med: 25, dist: 20, gde: 100",
+                "med: 25, dist: 20, gde: 500",
+                "med: 25, dist: 20, gde: 1000",
+                "med: 50, dist: 05, gde: 100",
+                "med: 50, dist: 05, gde: 500",
+                "med: 50, dist: 05, gde: 1000",
+                "med: 50, dist: 10, gde: 100",
+                "med: 50, dist: 10, gde: 500",
+                "med: 50, dist: 10, gde: 1000",
+                "med: 50, dist: 20, gde: 100",
+                "med: 50, dist: 20, gde: 500",
+                "med: 50, dist: 20, gde: 1000",
+                "med: 100, dist: 05, gde: 500",
+                "med: 100, dist: 05, gde: 1000",
+                "med: 100, dist: 10, gde: 500",
+                "med: 100, dist: 10, gde: 1000",
+                "med: 100, dist: 20, gde: 500",
+                "med: 100, dist: 20, gde: 1000"
+              ]
+            }
+          },
+          {
+            "name": "secondaryVegetationAge",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "integer"
+            }
+          },
+          {
+            "name": "nativeVegetationClass",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "integer"
+            }
+          }
+        ],
         "responses": {
           "200": {
             "description": "Success",
             "content": {
               "application/json": {
                 "schema": {
-                  "type": "array",
-                  "items": {
-                    "type": "object",
-                    "properties": {
-                      "code": {
-                        "type": "integer",
-                        "example": 3
-                      },
-                      "name": {
-                        "type": "string",
-                        "example": "Cerrado"
+                  "type": "object",
+                  "properties": {
+                    "areas": {
+                      "type": "array",
+                      "items": {
+                        "type": "object",
+                        "properties": {
+                          "class": {
+                            "type": "integer",
+                            "example": 3
+                          },
+                          "areaHa": {
+                            "type": "float",
+                            "example": 2234.45
+                          }
+                        }
                       }
                     }
                   }
@@ -480,7 +489,7 @@
     "/api/v1/raster": {
       "get": {
         "tags": [
-          "Teste de integração dos rasters"
+          "Rasters"
         ],
         "description": "Retorna a url do raster solicitado.",
         "parameters": [
@@ -521,13 +530,13 @@
             }
           },
           {
-            "name": "biomeCode",
-            "description": "Código do bioma",
+            "name": "territoryId",
+            "description": "Id do território",
             "in": "query",
             "required": false,
             "schema": {
               "type": "integer",
-              "example": 1
+              "example": 2
             }
           }
         ],

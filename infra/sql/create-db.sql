@@ -1,56 +1,51 @@
 CREATE TABLE IF NOT EXISTS territories (
-	type varchar NOT NULL,
-	code integer NOT NULL,
+	id integer NOT NULL,
+	category varchar NOT NULL,
 	name varchar,
-	uf varchar,
 	geometry geometry,
-	PRIMARY KEY(type, code)
+	PRIMARY KEY(id)
 );
 
 CREATE INDEX territories_geom_idx ON territories USING GIST (geometry);
 
 CREATE TABLE IF NOT EXISTS territories_grids (
-	territory_type varchar NOT NULL,
-	territory_code integer NOT NULL,
+	territory_id integer NOT NULL,
 	grid_id integer NOT NULL,
-	PRIMARY KEY (territory_type, territory_code, grid_id),
-	CONSTRAINT FK_territories_grids_territory FOREIGN KEY(territory_type, territory_code) REFERENCES territories(type, code),
-	CONSTRAINT FK_territories_grids_grid FOREIGN KEY(grid_id) REFERENCES grids(id)
+	PRIMARY KEY (territory_id, grid_id),
+	CONSTRAINT FK_territories_grids_territory FOREIGN KEY(territory_id) REFERENCES territories(id) ON DELETE CASCADE ON UPDATE CASCADE,
+	CONSTRAINT FK_territories_grids_grid FOREIGN KEY(grid_id) REFERENCES grids(id) ON DELETE CASCADE ON UPDATE CASCADE
 );
 
-INSERT INTO territories(type, code, name, uf, geometry)
+INSERT INTO territories(id, category, name, geometry)
 	SELECT
-		'estado' as type,
-		cd_uf::int as code,
-		nm_uf as name,
-		sigla_uf as uf,
-		geometry
+		id,
+		key as category,
+		string_val as name,
+		geom as geometry
 	FROM
-		states;
+		mapbiomas_biome;
 		
-INSERT INTO territories(type, code, name, uf, geometry)
+INSERT INTO territories(id, category, name, geometry)
 	SELECT
-		'municipio' as type,
-		code::int as code,
-		name as name,
-		acronym_uf as uf,
-		geometry
+		id,
+		key as category,
+		string_val as name,
+		geom as geometry
 	FROM
-		cities;
+		mapbiomas_country;
 
-INSERT INTO territories(type, code, name, geometry)
+INSERT INTO territories(id, category, name, geometry)
 	SELECT
-		'bioma' as type,
-		cd_bioma::int as code,
-		bioma as name,
-		geometry
+		id,
+		key as category,
+		string_val as name,
+		geom as geometry
 	FROM
-		biomes;
+		mapbiomas_state;
 
-INSERT INTO territories_grids (territory_type, territory_code, grid_id)
+INSERT INTO territories_grids (territory_id, grid_id)
 	SELECT
-		t.type as territory_type,
-		t.code as territory_code,
+		t.id as territory_id,
 		g.id as grid_id
 	FROM
 		territories as t

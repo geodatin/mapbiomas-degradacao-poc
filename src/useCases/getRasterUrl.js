@@ -1,8 +1,8 @@
 import ee from '@google/earthengine'
-import { territoryMask } from '../utils/territories.js'
+import { findTerritory, getTerritoryMask } from '../utils/territories.js'
 
 async function getRasterUrl(req, res) {
-  let { assetId, pixelValues, colors, biomeCode } = req.query
+  let { assetId, pixelValues, colors, territoryId } = req.query
 
   if (!assetId) {
     return res.status(400).json({ error: `'assetId' is required`})
@@ -34,10 +34,17 @@ async function getRasterUrl(req, res) {
 
   let masked = updateImageMask(selectedBand, pixelValues)
 
-  if (biomeCode) {
-    biomeCode = Number(biomeCode)
-    const biomeMask = territoryMask('bioma', biomeCode)
-    masked = masked.updateMask(biomeMask)
+  if (territoryId) {
+    territoryId = Number(territoryId)
+
+    const territory = await findTerritory(territoryId)
+
+    if (!territory) {
+      return res.status(400).json({ error: 'Territory not found' })
+    }
+
+    const territoryMask = getTerritoryMask(territory.category, territory.id)
+    masked = masked.updateMask(territoryMask)
   }
 
   const visParams = generateVisParams(pixelValues, colors)

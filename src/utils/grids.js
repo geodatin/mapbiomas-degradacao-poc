@@ -1,11 +1,11 @@
-import database from "../../infra/database.js"
+import database from '../../infra/database.js'
 
 export const GRID_ASSET = 'projects/mapbiomas-agua/assets/gridBrazil'
 
-export async function findGridIds(territoryType, territoryCode) {
+export async function findGridIds(territoryId) {
   const result = await database.query({
-    text: "SELECT grid_id FROM territories_grids WHERE territory_type = $1 AND territory_code = $2;",
-    values: [territoryType, territoryCode],
+    text: "SELECT grid_id FROM territories_grids WHERE territory_id = $1;",
+    values: [territoryId],
   })
   const gridIds = result.rows.map((grid) => grid.grid_id)
   return gridIds

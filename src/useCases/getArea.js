@@ -1,99 +1,97 @@
 import ee from '@google/earthengine'
 
 import { fireAgeMask, edgeAreaMask, patchSizeMask, isolationMask, secondaryVegetationAgeMask, nativeVegetationMask, landUseLandCoverMask } from '../utils/masks.js'
-import { filterTerritory, fetchTerritoryCode, territoryMask } from '../utils/territories.js'
+import { getTerritoryFeature, getTerritoryMask, findTerritory } from '../utils/territories.js'
 import { GRID_ASSET, findGridIds, splitIntoChunks } from '../utils/grids.js'
 
+const METHOD = 'gridMap' 
+
 async function getArea(req, res) {
-  let { method, territoryType, territoryName, year } = req.params
+  let { territoryId, year } = req.params
   let {
-    escala: scale, 
-    numeroDeGrids: chunksize, 
-    fogoIdade: fireAge,
-    areaBorda: edgeArea, 
-    tamanhoFragmento: patchSize, 
-    isolamento: isolation, 
-    vegetacaoSecundariaIdade: secondaryVegetationAge, 
-    vegetacaoNativaClasse: nativeVegetationClass,
-    usoECoberturaClasse: landUseLandCoverClass
+    fireAge,
+    edgeArea, 
+    patchSize, 
+    isolation, 
+    secondaryVegetationAge, 
+    nativeVegetationClass,
+    landUseLandCoverClass
   } = req.query
 
   console.log('Request URL:', req.originalUrl)
 
-  scale = Number(scale) || 30
-  chunksize = Number(chunksize) || 5
   fireAge = Number(fireAge)
   secondaryVegetationAge = Number(secondaryVegetationAge)
   nativeVegetationClass = Number(nativeVegetationClass)
   landUseLandCoverClass = Number(landUseLandCoverClass)
 
-  let image = ee.Image(1)
+  let image = ee.Image(0)
 
   if (fireAge) {
-    const mask = fireAgeMask(year, fireAge)
-    image = image.updateMask(mask)
+    const mask = fireAgeMask(fireAge, year)
+    image = image.or(mask)
   }
 
   if (edgeArea) {
-    const mask = edgeAreaMask(year, edgeArea)
-    image = image.updateMask(mask)
+    const mask = edgeAreaMask(edgeArea, year)
+    image = image.or(mask)
   }
 
   if (patchSize) {
-    const mask = patchSizeMask(year, patchSize)
-    image = image.updateMask(mask)
+    const mask = patchSizeMask(patchSize, year)
+    image = image.or(mask)
   }
 
   if (isolation) {
-    const mask = isolationMask(year, isolation)
-    image = image.updateMask(mask)
+    const mask = isolationMask(isolation, year)
+    image = image.or(mask)
   }
 
   if (secondaryVegetationAge) {
-    const mask = secondaryVegetationAgeMask(year, secondaryVegetationAge)
-    image = image.updateMask(mask)
+    const mask = secondaryVegetationAgeMask(secondaryVegetationAge, year)
+    image = image.or(mask)
   }
 
   if (nativeVegetationClass) {
-    const mask = nativeVegetationMask(year, nativeVegetationClass)
-    image = image.updateMask(mask)
+    const mask = nativeVegetationMask(nativeVegetationClass, year)
+    image = image.or(mask)
   }
 
   if (landUseLandCoverClass) {
-    const mask = landUseLandCoverMask(year, landUseLandCoverClass)
-    image = image.updateMask(mask)
+    const mask = landUseLandCoverMask(landUseLandCoverClass, year)
+    image = image.or(mask)
   }
 
-  const territoryFeature = filterTerritory(territoryType, territoryName)
+  const territory = await findTerritory(territoryId)
 
-  if (!territoryFeature) {
+  if (!territory) {
     return res.status(400).json({ error: 'Territory not found' })
   }
 
-  const territoryCode = await fetchTerritoryCode(territoryFeature)
-  const mask = territoryMask(territoryType, territoryCode)
+  const territoryFeature = getTerritoryFeature(territory.category, territory.id)
 
-  image = image.updateMask(mask)
+  const territoryMask = getTerritoryMask(territory.category, territory.id)
 
-  
+  image = image.updateMask(territoryMask)
+
   let areaHa
-  if (method === 'normal') {
+  if (METHOD === 'normal') {
     console.time('compute area')
     const geometry = territoryFeature.geometry().bounds()
-    areaHa = await computeArea(geometry, image, scale)
+    areaHa = await computeArea(geometry, image)
     console.timeEnd('compute area')
-  } else if (method === 'grid') {
-    areaHa = await computeAreaWithGrid(territoryType, territoryCode, image, scale)
-  } else if (method === 'gridMap') {
-    areaHa = await computeAreaWithGridMap(territoryType, territoryCode, image, scale, chunksize)
+  } else if (METHOD === 'grid') {
+    areaHa = await computeAreaWithGrid(territoryId, image)
+  } else if (METHOD === 'gridMap') {
+    areaHa = await computeAreaWithGridMap(territoryId, image)
   } 
 
   return res.json({ areaHa })
 }
 
-async function computeAreaWithGrid(territoryType, territoryCode, mask, scale) {
+async function computeAreaWithGrid(territoryId, mask) {
   console.time('find grid ids')
-  const gridIds = await findGridIds(territoryType, territoryCode)
+  const gridIds = await findGridIds(territoryId)
   console.timeEnd('find grid ids')
 
   const grid = ee.FeatureCollection(GRID_ASSET)
@@ -105,7 +103,7 @@ async function computeAreaWithGrid(territoryType, territoryCode, mask, scale) {
         grid.filter(ee.Filter.eq('id', id)).first()
       ).geometry()
 
-      const area = await computeArea(geometry, mask, scale)
+      const area = await computeArea(geometry, mask)
       return area
     })
   )
@@ -115,14 +113,14 @@ async function computeAreaWithGrid(territoryType, territoryCode, mask, scale) {
   return sumArea
 }
 
-async function computeArea(geometry, mask, scale) {
+async function computeArea(geometry, mask) {
   const pixelArea = ee.Image.pixelArea().divide(10000)
   const maskedArea = mask.multiply(pixelArea).rename('area')
 
   const reducedArea = maskedArea.reduceRegion({
     reducer: ee.Reducer.sum(),
     geometry: geometry,
-    scale: scale,
+    scale: 30,
     maxPixels: 1e13
   })
 
@@ -138,20 +136,23 @@ async function computeArea(geometry, mask, scale) {
   return areaHa
 }
 
-async function computeAreaWithGridMap(territoryType, territoryCode, mask, scale, chunksize) {
+async function computeAreaWithGridMap(territoryId, mask) {
   const grid = ee.FeatureCollection(GRID_ASSET)
 
   console.time('find grid ids')
-  const gridIds = await findGridIds(territoryType, territoryCode)
+  const gridIds = await findGridIds(territoryId)
   console.timeEnd('find grid ids')
 
-  const gridIdChunks = splitIntoChunks(gridIds, chunksize)
+  const CHUNK_SIZE = 10
+  const gridIdChunks = splitIntoChunks(gridIds, CHUNK_SIZE)
+
+  console.log(`Grid id chunks: ${gridIdChunks.length}`)
 
   console.time('compute area')
   const areas = await Promise.all(
     gridIdChunks.map(async (ids) => {
       const grids = grid.filter(ee.Filter.inList('id', ee.List(ids)))
-      const gridAreas = await computeAreaMap(grids, mask, scale)
+      const gridAreas = await computeAreaMap(grids, mask)
       return gridAreas
     })
   )
@@ -161,7 +162,7 @@ async function computeAreaWithGridMap(territoryType, territoryCode, mask, scale,
   return totalArea
 }
 
-function computeAreaMap(collection, mask, scale) {
+function computeAreaMap(collection, mask) {
   const pixelArea = ee.Image.pixelArea().divide(10000)
   const maskedArea = mask.multiply(pixelArea).rename('area')
 
@@ -169,7 +170,7 @@ function computeAreaMap(collection, mask, scale) {
     const area = maskedArea.reduceRegion({
       reducer: ee.Reducer.sum(),
       geometry: feature.geometry(),
-      scale: scale,
+      scale: 30,
       maxPixels: 1e13
     })
 

@@ -1,58 +1,42 @@
 import ee from '@google/earthengine'
+import database from '../../infra/database.js'
 
-export function filterTerritory(territoryType, territoryName) {
-  if (territoryType === 'bioma') {
-    const feature = ee.Feature(
-      ee.FeatureCollection('projects/mapbiomas-agua/assets/territories/biome')
-        .filter(ee.Filter.eq('Bioma', territoryName))
-        .first()
-    )
-    return feature.select(['CD_Bioma', 'Bioma'], ['code', 'name'])
-  }
+const categories = ['country', 'biome', 'state']
 
-  if (territoryType === 'municipio') {
-    const split = territoryName.split('-')
-    const cityName = split[0].trim()
-    const cityUf = split[1].trim()
-    const feature = ee.Feature(
-      ee.FeatureCollection('projects/mapbiomas-agua/assets/territories/city')
-        .filter(ee.Filter.eq('NM_MUN', cityName))
-        .filter(ee.Filter.eq('SIGLA_UF', cityUf))
-        .first()
-    )
-    return feature.select(['CODIBGE', 'NM_MUN', 'SIGLA_UF'], ['code', 'name', 'uf'])
-  }
-
-  if (territoryType === 'estado') {
-    const feature = ee.Feature(
-      ee.FeatureCollection('projects/mapbiomas-agua/assets/territories/state')
-        .filter(ee.Filter.eq('NM_UF', territoryName))
-        .first()
-    )
-    return feature.select(['CD_UF', 'NM_UF', 'SIGLA_UF'], ['code', 'name', 'uf'])
-  }
-}
-
-export async function fetchTerritoryCode(territoryFeature) {
-  return new Promise((resolve, reject) => {
-    territoryFeature.get('code').evaluate((code, error) => {
-      if (error) {
-        reject(error)
-      } else {
-        resolve(code)
-      }
-    })
+export async function selectTerritories() {
+  const result = await database.query({
+    text: "SELECT id, category, name FROM territories ORDER BY id"
   })
+  const territories = result.rows
+  return territories
 }
 
-export function territoryMask(territoryType, territoryCode) {
-  const assetId = {
-    'bioma': 'projects/mapbiomas-agua/assets/territories/images/biome',
-    'municipio': 'projects/mapbiomas-agua/assets/territories/images/city',
-    'estado': 'projects/mapbiomas-agua/assets/territories/images/state'
+export async function findTerritory(territoryId) {
+  const result = await database.query({
+    text: "SELECT id, category, name FROM territories WHERE id = $1;",
+    values: [territoryId],
+  })
+  const territory = result.rows[0]
+  return territory
+}
+
+export function getTerritoryFeature(territoryCategory, territoryId) {
+  if (categories.includes(territoryCategory)) {
+    const feature = ee.Feature(
+      ee.FeatureCollection(`projects/mapbiomas-agua/assets/degradacao/territories/${territoryCategory}`)
+        .filter(ee.Filter.eq('ID', territoryId))
+        .first()
+    )
+    return feature.select(['ID', 'STRING_VAL'], ['id', 'name'])
   }
-  const mask = ee.Image(assetId[territoryType])
-    .eq(territoryCode)
-    .selfMask()
-  return mask
+}
+
+export function getTerritoryMask(territoryCategory, territoryId) {
+  if (categories.includes(territoryCategory)) {
+    const assetId = `projects/mapbiomas-agua/assets/degradacao/images/${territoryCategory}`
+    const mask = ee.Image(assetId)
+      .eq(territoryId)
+      .selfMask()
+    return mask
+  }
 }
