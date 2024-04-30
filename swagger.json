@@ -10,6 +10,7 @@
         "tags": [
           "Territórios"
         ],
+        "summary": "Listagem de territórios",
         "description": "Lista todos os territórios.",
         "responses": {
           "200": {
@@ -177,6 +178,7 @@
             }
           }
         ],
+        "summary": "Área total dos vetores de degradacao em um ano",
         "responses": {
           "200": {
             "description": "Success",
@@ -314,6 +316,7 @@
             }
           }
         ],
+        "summary": "Área dos vetores de degradacao por classe de uso e cobertura em um ano",
         "responses": {
           "200": {
             "description": "Success",
@@ -454,6 +457,7 @@
             }
           }
         ],
+        "summary": "Série temporal da área dos vetores de degradacao por classe de uso e cobertura",
         "responses": {
           "200": {
             "description": "Success",
